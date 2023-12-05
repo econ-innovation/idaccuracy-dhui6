@@ -1,0 +1,53 @@
+#!/usr/bin/env Rscript
+
+# 获取传递的参数
+args <- commandArgs(trailingOnly = TRUE)
+
+# 检查参数数量
+if (length(args) != 1) {
+  cat("Usage: ./aminer_data_script.R <path-to-aminer-folder>\n")
+  quit(status = 1)
+}
+
+# 读取路径参数
+aminer_folder_path <- args[1]
+
+# 打印当前工作目录
+cat("Current working directory:", getwd(), "\n")
+
+# 加载所需的库
+library(readr)
+library(dplyr)
+
+# 获取文件夹中的所有CSV文件
+csv_files <- list.files(aminer_folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+# 打印找到的CSV文件
+cat("CSV files found:", csv_files, "\n")
+
+# 读取并处理每个CSV文件
+all_data <- data.frame()
+for (file in csv_files) {
+  cat("Processing file:", file, "\n")
+  temp_data <- read_csv(file)
+  
+  # 打印列名
+  cat("Column names:", colnames(temp_data), "\n")
+  
+  # 选择指定的列
+  extracted_data <- temp_data %>% 
+    select(doi, 标题, 期刊, 年份)
+  
+  # 将处理后的数据追加到总数据框
+  all_data <- bind_rows(all_data, extracted_data)
+}
+
+# 将所有处理后的数据写入CSV文件
+write_csv(all_data, file = "merged_data_lapply.csv")
+
+cat("Processing completed. Merged data saved to merged_data_lapply.csv\n")
+
+
+#封装脚本
+#运行 chmod +x aminer_data.R
+#调用路径 ./aminer_data.R /home/debian/Aminer_data/
