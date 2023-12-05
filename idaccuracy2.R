@@ -1,0 +1,16 @@
+setwd("D:/桌面/work1/Aminer_data")
+getwd()
+library(readr)
+library(dplyr)
+csv_files <- list.files(pattern = "\\.csv$")
+print(csv_files)
+all_data <- data.frame()
+data_list <- lapply(csv_files, function(file) {
+  file_path <- file.path("D:/桌面/work1/Aminer_data", file)
+  temp_data <- read_csv(file_path)
+  extracted_data <- temp_data %>% 
+    select(doi, 标题, 期刊, 年份)
+  return(extracted_data)
+})
+all_data <- bind_rows(data_list)
+write_csv(all_data, file = "merged_data_lapply.csv")
